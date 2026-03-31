@@ -14,6 +14,9 @@
 </p>
 </div>
 
+### 
+python版本3.10.10，paddle版本3,0，paddleDection版本2.9，其它包版本看piplist.txt，安装好paddle，把数据集解压到dataset内就可以跑流程了，流程见command.txt
+
 ## 💌目录
 - [💌目录](#目录)
 - [🌈简介](#简介)
