@@ -92,3 +92,9 @@ kernel_meta/
 
 paddleVenv/
 dataset/
+conv_params_txt/
+results/
+
+picodet_m_416_coco_sim_bs1.onnx
+picodet_m_416_coco_sim.onnx
+picodet_m_416_coco.onnx

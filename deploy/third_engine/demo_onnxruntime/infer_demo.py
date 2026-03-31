@@ -19,6 +19,170 @@ import onnxruntime as ort
 from pathlib import Path
 from tqdm import tqdm
 
+import numpy as np
+import cv2
+
+
+def xywh_to_xyxy(boxes):
+    """
+    boxes: (N, 4), [l, u, r, d]
+    return: (N, 4), [x1, y1, x2, y2]
+    """
+    boxes = boxes.astype(np.float32).copy()
+    l, u, r, d = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
+    x1 = l
+    y1 = u
+    x2 =  r
+    y2 = d
+    return np.stack([x1, y1, x2, y2], axis=1)
+
+
+def xyxy_to_xywh_for_opencv(boxes):
+    """
+    OpenCV NMSBoxes 需要 [x, y, w, h]
+    输入:
+        boxes: (N, 4), [x1, y1, x2, y2]
+    返回:
+        list of [x, y, w, h]
+    """
+    result = []
+    for box in boxes:
+        x1, y1, x2, y2 = box
+        w = x2 - x1
+        h = y2 - y1
+        result.append([float(x1), float(y1), float(w), float(h)])
+    return result
+
+
+def multiclass_nms_opencv(out0, out1, conf_thresh=0.25, nms_thresh=0.5):
+    """
+    out0: (1, 3598, 4), xywh
+    out1: (1, 5, 3598), class scores
+
+    返回:
+        final_boxes: (M, 4), xyxy
+        final_scores: (M,)
+        final_classes: (M,)
+    """
+    boxes = out0[0]          # (3598, 4)
+    scores = out1[0].T       # (3598, 5)
+
+    boxes_xyxy = xywh_to_xyxy(boxes)
+
+    final_boxes = []
+    final_scores = []
+    final_classes = []
+
+    num_classes = scores.shape[1]
+
+    for cls_id in range(num_classes):
+        cls_scores = scores[:, cls_id]
+        mask = cls_scores > conf_thresh
+
+        if not np.any(mask):
+            continue
+
+        cls_boxes_xyxy = boxes_xyxy[mask]
+        cls_scores_keep = cls_scores[mask]
+
+        # OpenCV NMSBoxes 要求 boxes 是 [x, y, w, h]
+        cls_boxes_xywh = xyxy_to_xywh_for_opencv(cls_boxes_xyxy)
+
+        indices = cv2.dnn.NMSBoxes(
+            bboxes=cls_boxes_xywh,
+            scores=cls_scores_keep.tolist(),
+            score_threshold=conf_thresh,
+            nms_threshold=nms_thresh
+        )
+
+        if indices is None or len(indices) == 0:
+            continue
+
+        # 兼容不同 OpenCV 版本返回格式
+        indices = np.array(indices).reshape(-1)
+
+        final_boxes.append(cls_boxes_xyxy[indices])
+        final_scores.append(cls_scores_keep[indices])
+        final_classes.append(np.full(len(indices), cls_id, dtype=np.int32))
+
+    if len(final_boxes) == 0:
+        return (
+            np.empty((0, 4), dtype=np.float32),
+            np.empty((0,), dtype=np.float32),
+            np.empty((0,), dtype=np.int32),
+        )
+
+    final_boxes = np.concatenate(final_boxes, axis=0).astype(np.float32)
+    final_scores = np.concatenate(final_scores, axis=0).astype(np.float32)
+    final_classes = np.concatenate(final_classes, axis=0).astype(np.int32)
+
+    # 最终按分数从高到低排序
+    order = np.argsort(-final_scores)
+    final_boxes = final_boxes[order]
+    final_scores = final_scores[order]
+    final_classes = final_classes[order]
+
+    return final_boxes, final_scores, final_classes
+
+
+def draw_detections(image, boxes, scores, classes, class_names=None):
+    """
+    image: OpenCV 读取的 BGR 图像
+    boxes: (N, 4), xyxy
+    """
+    img = image.copy()
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+    if class_names is None:
+        num_classes = int(classes.max()) + 1 if len(classes) > 0 else 0
+        class_names = [f"class_{i}" for i in range(num_classes)]
+
+    colors = [
+        (255, 0, 0),
+        (0, 255, 0),
+        (0, 0, 255),
+        (255, 255, 0),
+        (255, 0, 255),
+    ]
+
+    h, w = img.shape[:2]
+
+    for box, score, cls_id in zip(boxes, scores, classes):
+        x1, y1, x2, y2 = box.astype(np.int32)
+        x1 = x1 / 416 * w
+        y1 = y1 / 416 * h
+        x2 = x2 / 416 * w
+        y2 = y2 / 416 * h
+
+        x1 = max(0, min(x1, w - 1)).astype(np.int32)
+        y1 = max(0, min(y1, h - 1)).astype(np.int32)
+        x2 = max(0, min(x2, w - 1)).astype(np.int32)
+        y2 = max(0, min(y2, h - 1)).astype(np.int32)
+        print(f"box: {x1}, {y1}, {x2}, {y2}, score: {score:.4f}, class: {class_names[int(cls_id)]}")
+
+        color = colors[int(cls_id) % len(colors)]
+        label = f"{class_names[int(cls_id)]}: {score:.2f}"
+
+        cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+
+        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+        text_top = max(0, y1 - th - 6)
+
+        cv2.rectangle(img, (x1, text_top), (x1 + tw, y1), color, -1)
+        cv2.putText(
+            img,
+            label,
+            (x1, y1 - 4),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA
+        )
+
+    return img
+
+
 
 class PicoDet():
     def __init__(self,
@@ -126,34 +290,33 @@ class PicoDet():
 
         outs = self.net.run(None, net_inputs)
 
-        outs = np.array(outs[0])
-        expect_boxes = (outs[:, 1] > 0.5) & (outs[:, 0] > -1)
-        np_boxes = outs[expect_boxes, :]
+        out0 = np.array(outs[0])
+        out1 = np.array(outs[1])
 
-        color_list = self.get_color_map_list(self.num_classes)
-        clsid2color = {}
+        # image = cv2.imread("results/700zhengchang.jpg")
+        # image = cv2.resize(image, (416, 416))
+        class_names = ["ca_shang", "zang_wu", "zhe_zhou", "zhen_kong", "zheng_chang"]
 
-        for i in range(np_boxes.shape[0]):
-            classid, conf = int(np_boxes[i, 0]), np_boxes[i, 1]
-            xmin, ymin, xmax, ymax = int(np_boxes[i, 2]), int(np_boxes[
-                i, 3]), int(np_boxes[i, 4]), int(np_boxes[i, 5])
+        boxes, scores, classes = multiclass_nms_opencv(
+            out0,
+            out1,
+            conf_thresh=0.4,
+            nms_thresh=0.5
+        )
 
-            if classid not in clsid2color:
-                clsid2color[classid] = color_list[classid]
-            color = tuple(clsid2color[classid])
+        result = draw_detections(
+            image=srcimg,
+            boxes=boxes,
+            scores=scores,
+            classes=classes,
+            class_names=class_names
+        )
 
-            cv2.rectangle(
-                srcimg, (xmin, ymin), (xmax, ymax), color, thickness=2)
-            print(self.classes[classid] + ': ' + str(round(conf, 3)))
-            cv2.putText(
-                srcimg,
-                self.classes[classid] + ':' + str(round(conf, 3)), (xmin,
-                                                                    ymin - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8, (0, 255, 0),
-                thickness=2)
+        # cv2.imwrite("result.jpg", result)
+        print("检测框数量:", len(boxes))
+        
 
-        return srcimg
+        return result
 
     def detect_folder(self, img_fold, result_path):
         img_fold = Path(img_fold)

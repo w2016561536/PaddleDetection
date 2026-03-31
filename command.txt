@@ -1,0 +1,24 @@
+# 训练
+python tools/train.py -c .\configs\picodet\picodet_m_416_coco_lcnet.yml --eval
+
+# paddle 验证
+python tools/infer.py -c ./configs/picodet/picodet_m_416_coco_lcnet.yml -o weights=output/best_model.pdparams --infer_dir ./dataset/isdd-dataset-voc/images/ --do_eval=False --draw_threshold=0.4 
+
+# 给配置文件擦屁股
+mkdir output/picodet_m_416_coco
+cp output/best_model.pdparams output/picodet_m_416_coco/
+
+# paddle 导出模型（转ONNX前必须做）
+python tools/export_model.py -c ./configs/picodet/picodet_m_416_coco_lcnet.yml -o weights=output/best_model.pdparams --output_dir=output_inference/ -o export.nms=False 
+
+# paddle转ONNX
+paddle2onnx --model_dir output_inference/picodet_m_416_coco_lcnet/  --model_filename model.pdmodel   --params_filename model.pdiparams   --opset_version 16 --save_file picodet_m_416_coco.onnx
+
+# 简化onnx模型
+onnxsim ./picodet_m_416_coco.onnx ./picodet_m_416_coco_sim.onnx
+
+# 静态化特征图输入
+python static_onnx_input.py 
+
+# ONNX 推理
+python deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_m_416_coco_sim_bs1.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
