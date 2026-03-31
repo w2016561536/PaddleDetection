@@ -90,3 +90,5 @@ kernel_meta/
 # MAC
 *.DS_Store
 
+paddleVenv/
+dataset/
