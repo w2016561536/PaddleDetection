@@ -1,4 +1,4 @@
-pretrain_weights: https://paddledet.bj.bcebos.com/models/picodet_s_416_coco_lcnet.pdparams
+pretrain_weights: https://paddledet.bj.bcebos.com/models/picodet_m_416_coco_lcnet.pdparams
 slim: QAT
 
 QAT:
@@ -10,7 +10,7 @@ QAT:
   print_model: False
 
 TrainReader:
-  batch_size: 12
+  batch_size: 9
 
 LearningRate:
   base_lr: 0.01

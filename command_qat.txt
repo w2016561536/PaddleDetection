@@ -1,0 +1,54 @@
+# 训练
+python tools/train.py -c configs/picodet/picodet_s_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_s_416_lcnet_quant.yml --eval
+
+# paddle 验证
+python tools/eval.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams
+python tools/infer.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams --infer_dir ./dataset/isdd-dataset-voc/images/ --do_eval=False --draw_threshold=0.4 
+
+# 给配置文件擦屁股
+mkdir output/picodet_m_416_coco
+cp output/best_model.pdparams output/picodet_m_416_coco/
+
+mkdir output/picodet_s_416_coco
+cp output/best_model.pdparams output/picodet_s_416_coco/
+
+
+--deploy_backend onnxruntime                                                                        
+# paddle 导出模型（转ONNX前必须做）
+python tools/export_model.py -c ./configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams --output_dir=output_inference/ -o export.nms=False 
+
+# paddle转ONNX
+paddle2onnx --model_dir output_inference/picodet_s_416_lccnet_quant/  --model_filename model.pdmodel   --params_filename model.pdiparams   --opset_version 16 --save_file picodet_m_416_coco_qat.onnx
+
+# 简化onnx模型
+onnxsim ./picodet_m_416_coco.onnx ./picodet_m_416_coco_sim.onnx
+
+# 静态化特征图输入
+python static_onnx_input.py 
+
+# ONNX 推理
+python deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath model.int8.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
+
+
+
+python quantize_onnx_from_folder.py  
+ --model_input picodet_m_416_coco_sim_bs1.onnx
+  --model_output model.int8.onnx 
+  --image_dir ./dataset/isdd-dataset-voc/images
+  --max_images 200 
+  --quant_format QDQ 
+  --activation_type QUInt8 
+  --weight_type QInt8 
+  --per_channel 
+  --mean 0.485 0.456 0.406 
+  --std 0.229 0.224 0.225
+
+
+  python infer_onnx_with_nms.py 
+  --model model.int8.onnx
+  --input_dir dataset/isdd-dataset-voc/images
+  --output_dir ./vis 
+  --class_names class0 class1 class2 class3 class4 
+  --conf_thres 0.25 
+  --iou_thres 0.45 
+  --save_json results.json

@@ -269,8 +269,7 @@ pip install paddleslim==2.2.2
 开始量化训练:
 
 ```shell
-python tools/train.py -c configs/picodet/picodet_s_416_coco_lcnet.yml \
-          --slim_config configs/slim/quant/picodet_s_416_lcnet_quant.yml --eval
+python tools/train.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml --eval
 ```
 
 - 更多细节请参考[slim文档](https://github.com/PaddlePaddle/PaddleDetection/tree/develop/configs/slim)
