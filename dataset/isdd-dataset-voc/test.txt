@@ -1,0 +1,13 @@
+./images/704zhengchang.jpg ./annotations/704zhengchang.xml
+./images/729zhengchang.jpg ./annotations/729zhengchang.xml
+./images/732zhengchang.jpg ./annotations/732zhengchang.xml
+./images/ca_shang17.jpg ./annotations/ca_shang17.xml
+./images/ca_shang33.jpg ./annotations/ca_shang33.xml
+./images/ca_shang42.jpg ./annotations/ca_shang42.xml
+./images/zang_wu22.jpg ./annotations/zang_wu22.xml
+./images/zang_wu23.jpg ./annotations/zang_wu23.xml
+./images/zang_wu31.jpg ./annotations/zang_wu31.xml
+./images/zang_wu35.jpg ./annotations/zang_wu35.xml
+./images/zang_wu39.jpg ./annotations/zang_wu39.xml
+./images/zhen_kong8.jpg ./annotations/zhen_kong8.xml
+./images/zhe_zhou9.jpg ./annotations/zhe_zhou9.xml

@@ -1,0 +1,22 @@
+<annotation>
+	<folder>images</folder>
+	<filename>zang_wu13.jpg</filename>
+	<size>
+		<width>640</width>
+		<height>480</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>zang_wu</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>265</xmin>
+			<ymin>175</ymin>
+			<xmax>434</xmax>
+			<ymax>366</ymax>
+		</bndbox>
+	</object>
+</annotation>

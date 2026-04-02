@@ -86,3 +86,4 @@ kernel_meta/
 # MAC
 *.DS_Store
 
+pad26Venv/

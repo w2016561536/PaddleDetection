@@ -1,0 +1,22 @@
+<annotation>
+	<folder>images</folder>
+	<filename>zhe_zhou25.jpg</filename>
+	<size>
+		<width>640</width>
+		<height>480</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>zhe_zhou</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>155</xmin>
+			<ymin>122</ymin>
+			<xmax>364</xmax>
+			<ymax>387</ymax>
+		</bndbox>
+	</object>
+</annotation>

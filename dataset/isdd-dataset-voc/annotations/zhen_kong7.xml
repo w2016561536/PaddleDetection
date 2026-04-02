@@ -1,0 +1,22 @@
+<annotation>
+	<folder>images</folder>
+	<filename>zhen_kong7.jpg</filename>
+	<size>
+		<width>640</width>
+		<height>480</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>zhen_kong</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>351</xmin>
+			<ymin>160</ymin>
+			<xmax>488</xmax>
+			<ymax>335</ymax>
+		</bndbox>
+	</object>
+</annotation>

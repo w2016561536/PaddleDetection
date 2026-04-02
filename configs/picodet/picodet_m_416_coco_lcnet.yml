@@ -1,5 +1,5 @@
 _BASE_: [
-  '../datasets/coco_detection.yml',
+  '../datasets/isdd_data.yml',
   '../runtime.yml',
   '_base_/picodet_v2.yml',
   '_base_/optimizer_300e.yml',
@@ -13,10 +13,10 @@ epoch: 250
 snapshot_epoch: 10
 
 TrainReader:
-  batch_size: 48
+  batch_size: 9
 
 LearningRate:
-  base_lr: 0.24
+  base_lr: 0.015
   schedulers:
   - name: CosineDecay
     max_epochs: 300
