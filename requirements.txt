@@ -1,9 +1,12 @@
-# python3 -m pip install paddlepaddle-gpu==2.6.2.post120 -i https://www.paddlepaddle.org.cn/packages/stable/cu120
-# python3 -m pip install paddlepaddle-gpu==2.6.2.post117 -i https://www.paddlepaddle.org.cn/packages/stable/cu117
+# use python 3.10.10
 
-# paddleslim==2.6.0  #手动安装，先 python ./setup.py install 再装这个
+# python -m pip install paddlepaddle-gpu==2.6.2.post120 -i https://www.paddlepaddle.org.cn/packages/stable/cu120
+# python -m pip install paddlepaddle-gpu==2.6.2.post117 -i https://www.paddlepaddle.org.cn/packages/stable/cu117
+
+# paddleslim==2.6.0  # python ./setup.py install  # install first
 
 numpy < 1.24
+protobuf<=3.20.2
 tqdm
 typeguard
 visualdl>=2.2.0
@@ -21,10 +24,11 @@ lap
 motmetrics
 sklearn==0.0
 
-onnx==1.21.0
-onnxruntime==1.23.2
-onnxsim==0.6.2
+onnx
+onnxruntime
+onnxsim
 paddle2onnx==1.0.5
+Pillow==9.5.0
 
 # for vehicleplate in deploy/pipeline/ppvehicle
 pyclipper

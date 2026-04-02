@@ -1,5 +1,6 @@
 pretrain_weights: https://paddledet.bj.bcebos.com/models/picodet_m_416_coco_lcnet.pdparams
 slim: QAT
+weights: output/picodet_m_416_lcnet_quant/best_model
 
 QAT:
   quant_config: {
