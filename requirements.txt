@@ -27,7 +27,7 @@ sklearn==0.0
 onnx
 onnxruntime
 onnxsim
-paddle2onnx==1.0.5
+# paddle2onnx==1.2.0 #  使用手工编译
 Pillow==9.5.0
 
 # for vehicleplate in deploy/pipeline/ppvehicle

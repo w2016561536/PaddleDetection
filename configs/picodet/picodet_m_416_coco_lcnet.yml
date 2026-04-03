@@ -16,7 +16,7 @@ TrainReader:
   batch_size: 9
 
 LearningRate:
-  base_lr: 0.015
+  base_lr: 0.0113
   schedulers:
   - name: CosineDecay
     max_epochs: 300
