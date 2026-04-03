@@ -28,7 +28,10 @@ scikit-learn==1.7.2
 onnx<=1.17.0
 onnxruntime<=1.23.2
 onnxsim<=0.6.2
-# paddle2onnx==1.2.0 #  使用手工编译 去./Paddle2ONNX/中 pip install -e .
+# paddle2onnx==1.2.0 
+#  使用手工编译 去./Paddle2ONNX/中 
+# 先 python ./setup.py install 
+# 再 pip install -e .
 Pillow==9.5.0
 
 # for vehicleplate in deploy/pipeline/ppvehicle
