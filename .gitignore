@@ -87,3 +87,4 @@ kernel_meta/
 *.DS_Store
 
 pad26Venv/
+results/

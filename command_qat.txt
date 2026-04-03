@@ -32,3 +32,4 @@ onnxsim ./picodet_m_416_coco_qat.onnx ./picodet_m_416_coco_qat_sim.onnx
 
 # ONNX 推理
 python ./deploy/third_engine/onnx/infer.py --onnx_file picodet_m_416_coco_qat_sim.onnx --infer_cfg output_inference/picodet_m_416_lcnet_quant/infer_cfg.yml --image_dir dataset/isdd-dataset-voc/images
+python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_m_416_coco_qat_sim.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
