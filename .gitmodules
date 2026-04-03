@@ -1,3 +1,4 @@
 [submodule "Paddle2ONNX"]
 	path = Paddle2ONNX
 	url = https://github.com/w2016561536/Paddle2ONNX
+	branch = jcs-v1.2.0
