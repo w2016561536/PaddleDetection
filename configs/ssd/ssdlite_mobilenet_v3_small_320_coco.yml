@@ -1,5 +1,5 @@
 _BASE_: [
-  '../datasets/coco_detection.yml',
+  '../datasets/isdd_data.yml',
   '../runtime.yml',
   '_base_/optimizer_1700e.yml',
   '_base_/ssdlite_mobilenet_v3_small_320.yml',

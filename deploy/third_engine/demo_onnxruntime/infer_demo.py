@@ -188,9 +188,9 @@ if __name__ == '__main__':
         default='coco_label.txt',
         help="classname filepath")
     parser.add_argument(
-        '--confThreshold', default=0.5, type=float, help='class confidence')
+        '--confThreshold', default=0.3, type=float, help='class confidence')
     parser.add_argument(
-        '--nmsThreshold', default=0.6, type=float, help='nms iou thresh')
+        '--nmsThreshold', default=0.5, type=float, help='nms iou thresh')
     parser.add_argument(
         "--img_fold", dest="img_fold", type=str, default="./imgs")
     parser.add_argument(

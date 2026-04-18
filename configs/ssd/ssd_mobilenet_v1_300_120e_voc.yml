@@ -1,5 +1,5 @@
 _BASE_: [
-  '../datasets/voc.yml',
+  '../datasets/isdd_data.yml',
   '../runtime.yml',
   '_base_/optimizer_120e.yml',
   '_base_/ssd_mobilenet_v1_300.yml',
