@@ -6,14 +6,15 @@ QAT:
     'activation_preprocess_type': 'PACT',
     'weight_quantize_type': 'channel_wise_abs_max', 'activation_quantize_type': 'moving_average_abs_max',
     'weight_bits': 8, 'activation_bits': 8, 'dtype': 'int8', 'window_size': 10000, 'moving_rate': 0.9,
-    'quantizable_layer_type': ['Conv2D', 'Linear']}
+    'quantizable_layer_type': ['Conv2D', 'Linear'],
+    'onnx_format': False}
   print_model: False
 
 TrainReader:
-  batch_size: 48
+  batch_size: 12
 
 LearningRate:
-  base_lr: 0.024
+  base_lr: 0.0015
   schedulers:
   - !CosineDecay
     max_epochs: 300

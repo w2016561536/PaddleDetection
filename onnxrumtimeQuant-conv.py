@@ -130,14 +130,14 @@ class ImageFolderCalibrationDataReader(CalibrationDataReader):
 
 if __name__ == "__main__":
     model_fp32 = "model_conv_bias_to_add.onnx"
-    model_int8 = "picodet_qat.onnx"
+    model_int8 = "picodet_m_416_coco_qat_sim_all.onnx"
     calib_image_dir = "./dataset/isdd-dataset-voc/images"
 
     reader = ImageFolderCalibrationDataReader(
         image_dir=calib_image_dir,
         model_path=model_fp32,
         input_name=None,     # 不写则自动取模型第一个输入名
-        image_size=320,
+        image_size=416,
         batch_size=1,        # 建议先用 1
         max_samples=50,     # 可按需要调整
     )
@@ -151,6 +151,10 @@ if __name__ == "__main__":
         weight_type=QuantType.QInt8,
         # calibrate_method=CalibrationMethod.MinMax,
         op_types_to_quantize=["Conv"],  # 只量化卷积层
+        nodes_to_quantize =["p2o.Conv.94_nobias", "p2o.Conv.108_nobias", "p2o.Conv.80_nobias" ,
+                            "p2o.Conv.66_nobias","p2o.Conv.111_nobias", "p2o.Conv.97_nobias",
+                            "p2o.Conv.83_nobias", "p2o.Conv.69_nobias", "p2o.Conv.110_nobias",
+                            "p2o.Conv.96_nobias", "p2o.Conv.82_nobias", "p2o.Conv.68_nobias"],
         per_channel=True,
         
     )

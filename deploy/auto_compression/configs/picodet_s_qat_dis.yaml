@@ -5,6 +5,7 @@ Global:
   model_dir: ./picodet_s_416_coco_npu/
   model_filename: model.pdmodel
   params_filename: model.pdiparams
+  onnx_format: False
 
 Distillation:
   alpha: 1.0
@@ -18,6 +19,7 @@ QuantAware:
   quantize_op_types:
   - conv2d
   - depthwise_conv2d
+  onnx_format: False
 
 TrainConfig:
   train_iter: 8000

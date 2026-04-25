@@ -85,6 +85,6 @@ def replace_conv_bias_with_add(model: onnx.ModelProto) -> onnx.ModelProto:
     model = shape_inference.infer_shapes(model)
     return model
 
-model = onnx.load("picodet_s_320_coco_lcnet_sim.onnx")
+model = onnx.load("picodet_m_416_coco_qat_sim.onnx")
 model = replace_conv_bias_with_add(model)
 onnx.save(model, "model_conv_bias_to_add.onnx")

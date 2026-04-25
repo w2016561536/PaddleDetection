@@ -1,6 +1,10 @@
 # 训练
 python tools/train.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml --eval
-python tools/train.py -c configs/picodet/picodet_s_320_coco_lcnet.yml --eval
+python tools/train.py -c configs/picodet/picodet_s_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_s_416_lcnet_quant.yml --eval
+
+python tools/train.py -c configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml --eval
+
+python tools/train.py -c configs/picodet/picodet_s_416_coco_npu.yml --eval
 
 # paddle 验证
 python tools/eval.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams
@@ -19,12 +23,18 @@ python tools/infer.py -c configs/picodet/picodet_s_320_coco_lcnet.yml -o weights
 --deploy_backend onnxruntime                                                                        
 # paddle 导出模型（转ONNX前必须做）
 python tools/export_model.py -c ./configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/picodet_m_416_lcnet_quant/best_model.pdparams --output_dir=output_inference/
-python tools/export_model.py -c ./configs/picodet/picodet_s_320_coco_lcnet.yml -o weights=output/picodet_s_320_coco_lcnet/best_model.pdparams --output_dir=output_inference/
+python tools/export_model.py  -c configs/picodet/picodet_s_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_s_416_lcnet_quant.yml  -o weights=output/picodet_s_416_lcnet_quant/best_model.pdparams --output_dir=output_inference/
+
+python tools/export_model.py -c ./configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml -o weights=output/ssd_mobilenet_v1_qat/best_model.pdparams --output_dir=output_inference/
+
+python tools/export_model.py -c ./configs/picodet/picodet_s_416_coco_npu.yml -o weights=output/picodet_s_416_coco_npu/best_model.pdparams --output_dir=output_inference/
 
 
 # paddle 导出后的模型推理
 python ./deploy/python/infer.py --model_dir=output_inference/picodet_m_416_lcnet_quant --image_dir=dataset/isdd-dataset-voc/images
-python ./deploy/python/infer.py --model_dir=output_inference/picodet_s_320_coco_lcnet --image_dir=dataset/isdd-dataset-voc/images
+python ./deploy/python/infer.py --model_dir=output_inference/picodet_s_416_lcnet_quant --image_dir=dataset/isdd-dataset-voc/images
+python ./deploy/python/infer.py --model_dir=output_inference/full_quant --image_dir=dataset/isdd-dataset-voc/images
+python ./deploy/python/infer.py --model_dir=output_inference/ssd_mobilenet_v1_qat --image_dir=dataset/isdd-dataset-voc/images
 
 
 # paddle转ONNX
@@ -38,9 +48,32 @@ onnxsim ./picodet_m_416_coco_qat.onnx ./picodet_m_416_coco_qat_sim.onnx
 # python static_onnx_input.py 
 
 # ONNX 推理
-python ./deploy/third_engine/onnx/infer.py --onnx_file picodet_m_416_coco_qat_sim.onnx --infer_cfg output_inference/picodet_m_416_lcnet_quant/infer_cfg.yml --image_dir dataset/isdd-dataset-voc/images
-python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_m_416_coco_qat_sim.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
+python ./deploy/third_engine/onnx/infer.py --onnx_file picodet_m_416_coco_qat_sim_all.onnx --infer_cfg output_inference/picodet_m_416_lcnet_quant/infer_cfg.yml --image_dir dataset/isdd-dataset-voc/images
+python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_m_416_coco_qat_sim_all.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
 
 
 python ./deploy/third_engine/onnx/infer.py --onnx_file picodet_qat.onnx --infer_cfg output_inference/picodet_s_320_coco_lcnet/infer_cfg.yml --image_dir dataset/isdd-dataset-voc/images
 python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_qat.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
+
+
+~/opt --model_dir=./output_inference/ssd_mobilenet_v1_qat --optimize_out_type=naive_buffer --optimize_out=ssd_mobilenet_v1_opt --valid_targets=intel_fpga,arm
+~/opt --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=opt_model --valid_targets=intel_fpga,arm
+~/opt --model_dir=./output_inference/full_quant --optimize_out_type=naive_buffer --optimize_out=opt_model --valid_targets=intel_fpga,arm
+
+~/opt --model_dir=./output_inference/full_quant --optimize_out_type=naive_buffer --optimize_out=opt_model_npu --valid_targets=intel_fpga,arm
+
+
+./opt_self11 --model_dir=./output_inference/full_quant --optimize_out_type=naive_buffer --optimize_out=opt_model --valid_targets=arm
+./opt_self11 --model_dir=./output_inference/ssd_mobilenet_v1_qat --optimize_out_type=naive_buffer --optimize_out=ssd_mobilenet_v1_opt --valid_targets=intel_fpga,arm
+
+./opt_self11 --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416 --valid_targets=intel_fpga,arm
+~/opt --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416_hard --valid_targets=intel_fpga,arm
+
+
+python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath custom_op_picodet.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
+
+
+--modelpath ~/paddle26/PaddleDetection/custom_op_picodet.onnx --classfile ~/paddle26/PaddleDetection/dataset/isdd-dataset-voc/label_list.txt --img_fold ~/paddle26/PaddleDetection/dataset/isdd-dataset-voc/images
+
+
+python /home/w2016/paddle26/PaddleDetection/deploy/auto_compression/run.py --config_path=/home/w2016/paddle26/PaddleDetection/deploy/auto_compression/configs/picodet_s_qat_dis.yaml --save_dir='/home/w2016/paddle26/PaddleDetection/output_inference/full_quant/'

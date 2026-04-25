@@ -1,5 +1,5 @@
 _BASE_: [
-  '../datasets/coco_detection.yml',
+  '../datasets/newdata.yml',
   '../runtime.yml',
   '_base_/picodet_v2.yml',
   '_base_/optimizer_300e.yml',
@@ -45,7 +45,7 @@ PicoHeadV2:
   act: relu6
 
 LearningRate:
-  base_lr: 0.2
+  base_lr: 0.025
   schedulers:
   - !CosineDecay
     max_epochs: 300
@@ -77,7 +77,7 @@ TrainReader:
   - NormalizeImage: {mean: [0, 0, 0], std: [1, 1, 1], is_scale: True}
   - Permute: {}
   - PadGT: {}
-  batch_size: 40
+  batch_size: 20
   shuffle: true
   drop_last: true
   mosaic_epoch: 180

@@ -1,5 +1,5 @@
 _BASE_: [
-  '../datasets/isdd_data.yml',
+  '../datasets/newdata.yml',
   '../runtime.yml',
   '_base_/picodet_v2.yml',
   '_base_/optimizer_300e.yml',

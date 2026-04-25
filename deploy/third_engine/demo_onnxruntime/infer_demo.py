@@ -36,6 +36,7 @@ class PicoDet():
         self.std = np.array(
             [57.375, 57.12, 58.395], dtype=np.float32).reshape(1, 1, 3)
         so = ort.SessionOptions()
+        so.register_custom_ops_library("/home/w2016/paddle26/PaddleDetection/onnx_custom_op/build/libfused_qdq_conv_custom_op.so")
         so.log_severity_level = 3
         self.net = ort.InferenceSession(model_pb_path, so)
         inputs_name = [a.name for a in self.net.get_inputs()]
