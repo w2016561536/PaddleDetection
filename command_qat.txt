@@ -77,3 +77,19 @@ python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath custom_o
 
 
 python /home/w2016/paddle26/PaddleDetection/deploy/auto_compression/run.py --config_path=/home/w2016/paddle26/PaddleDetection/deploy/auto_compression/configs/picodet_s_qat_dis.yaml --save_dir='/home/w2016/paddle26/PaddleDetection/output_inference/full_quant/'
+
+./lite/tools/build_linux.sh --arch=armv7hf --with_extra=ON
+
+
+python ./deploy/python/infer.py --model_dir=output_inference/picodet_s_416_lcnet_quant  --image_file=dataset/isdd-dataset-voc/images/ca_shang20.jpg
+
+./opt_self11 --model_dir=./output_inference/picodet_s_416_lcnet_quant_only_tail_conv2d --optimize_out_type=naive_buffer --optimize_out=conv2dTest --valid_targets=arm
+
+./opt_self11 --model_dir=./output_inference/picodet_s_416_lcnet_quant_only_tail_depthwiseconv --optimize_out_type=naive_buffer --optimize_out=depthwiseconv --valid_targets=arm
+
+python3 compare.py '/home/w2016/paddle26/PaddleDetection/output_hardwish_3.npy' '/home/w2016/paddle26/PaddleDetection/output_hardwish_1_litedepthwise2d.npy' 
+python3 compare.py '/home/w2016/paddle26/PaddleDetection/output_hardwish_1_liteconv2d.npy' '/home/w2016/paddle26/PaddleDetection/output_from_lite_runtime.npy'
+
+python3 compare.py '/home/w2016/paddle26/PaddleDetection/output_hardwish_1_liteconv2d.npy' conv2dOut.npy
+
+python3 compare.py '/home/w2016/paddle26/PaddleDetection/output_from_lite_runtime.npy' conv2dOut.npy
