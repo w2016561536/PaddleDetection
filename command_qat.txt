@@ -10,6 +10,7 @@ python tools/train.py -c configs/picodet/picodet_s_416_coco_npu.yml --eval
 python tools/eval.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams
 python tools/infer.py -c configs/picodet/picodet_m_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_m_416_lcnet_quant.yml -o weights=output/best_model.pdparams --infer_dir ./dataset/isdd-dataset-voc/images/
 python tools/infer.py -c configs/picodet/picodet_s_320_coco_lcnet.yml -o weights=output/picodet_s_320_coco_lcnet/best_model.pdparams --infer_dir ./dataset/isdd-dataset-voc/images/
+python tools/infer.py -c configs/picodet/picodet_s_416_coco_lcnet.yml --slim_config configs/slim/quant/picodet_s_416_lcnet_quant.yml -o weights=output/best_model.pdparams --infer_dir ./dataset/isdd-dataset-voc/images/
 
 
 # # 给配置文件擦屁股 好像不用
@@ -66,8 +67,9 @@ python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath picodet_
 ./opt_self11 --model_dir=./output_inference/full_quant --optimize_out_type=naive_buffer --optimize_out=opt_model --valid_targets=arm
 ./opt_self11 --model_dir=./output_inference/ssd_mobilenet_v1_qat --optimize_out_type=naive_buffer --optimize_out=ssd_mobilenet_v1_opt --valid_targets=intel_fpga,arm
 
-./opt_self11 --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416 --valid_targets=intel_fpga,arm
+./opt_self11 --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416 --valid_targets=arm
 ~/opt --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416_hard --valid_targets=intel_fpga,arm
+~/opt_fpga_test --model_dir=./output_inference/picodet_s_416_lcnet_quant --optimize_out_type=naive_buffer --optimize_out=picos416_fpga --valid_targets=intel_fpga,arm
 
 
 python ./deploy/third_engine/demo_onnxruntime/infer_demo.py --modelpath custom_op_picodet.onnx --classfile dataset/isdd-dataset-voc/label_list.txt --img_fold dataset/isdd-dataset-voc/images
